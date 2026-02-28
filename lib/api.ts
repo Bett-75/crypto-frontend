@@ -3,10 +3,8 @@ import Cookies from 'js-cookie';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
-export const api = axios.create({ baseURL: `${BASE_URL}/api/v1` });
-export const adminApi = axios.create({ baseURL: `${BASE_URL}/api/v1` });
-
-function attachInterceptors(instance: ReturnType<typeof axios.create>) {
+function makeClient() {
+  const instance = axios.create({ baseURL: `${BASE_URL}/api/v1` });
   instance.interceptors.request.use((config) => {
     const token = Cookies.get('token');
     if (token) config.headers.Authorization = `Bearer ${token}`;
@@ -23,7 +21,11 @@ function attachInterceptors(instance: ReturnType<typeof axios.create>) {
       return Promise.reject(new Error(message));
     },
   );
+  return instance;
 }
 
-attachInterceptors(api);
-attachInterceptors(adminApi);
+// Export every name any file might import
+export const api = makeClient();
+export const authApi = makeClient();
+export const userApi = makeClient();
+export const adminApi = makeClient();
