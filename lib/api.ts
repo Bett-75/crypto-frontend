@@ -57,8 +57,65 @@ export const userApi = {
   }
 };
 
-// Admin API - This is what your page is importing
+// Admin API
 export const adminApi = {
+  getWallets: async (token: string) => {
+    const res = await fetch(`${API_URL}/admin/wallets`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return res.json();
+  },
+
+  updateWallet: async (token: string, data: { chain: string; address: string }) => {
+    const res = await fetch(`${API_URL}/admin/wallets`, {
+      method: 'PATCH',
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    return res.json();
+  },
+
+  getProfitData: async (token: string) => {
+    const res = await fetch(`${API_URL}/admin/profit`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return res.json();
+  },
+
+  distributeProfit: async (token: string, data: { amount: number }) => {
+    const res = await fetch(`${API_URL}/admin/distribute-profit`, {
+      method: 'POST',
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    return res.json();
+  },
+
+  getSettings: async (token: string) => {
+    const res = await fetch(`${API_URL}/admin/settings`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return res.json();
+  },
+
+  updateSetting: async (token: string, key: string, value: any) => {
+    const res = await fetch(`${API_URL}/admin/settings/${key}`, {
+      method: 'PATCH',
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ value })
+    });
+    return res.json();
+  },
+
   getUsers: async (token: string) => {
     const res = await fetch(`${API_URL}/admin/users`, {
       headers: { 'Authorization': `Bearer ${token}` }
