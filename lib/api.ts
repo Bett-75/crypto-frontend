@@ -1,28 +1,47 @@
-import axios from 'axios';
-import Cookies from 'js-cookie';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+// Auth API
+export const authApi = {
+  register: (data: any) => fetch(`${API_URL}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }),
+  login: (data: any) => fetch(`${API_URL}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+};
 
-export const api = axios.create({ baseURL: `${BASE_URL}/api/v1` });
-export const adminApi = axios.create({ baseURL: `${BASE_URL}/api/v1` });
+// User API
+export const userApi = {
+  getMe: (token: string) => fetch(`${API_URL}/users/me`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  }),
+  getBalance: (token: string) => fetch(`${API_URL}/users/me/balance`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
+};
 
-// Attach JWT to every request
-[api, adminApi].forEach((instance) => {
-  instance.interceptors.request.use((config) => {
-    const token = Cookies.get('token');
-    if (token) config.headers.Authorization = `Bearer ${token}`;
-    return config;
-  });
+// Admin API - This is what your page is importing
+export const adminApi = {
+  getUsers: (token: string) => fetch(`${API_URL}/admin/users`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  }),
+  getDeposits: (token: string) => fetch(`${API_URL}/admin/deposits`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  }),
+  getWithdrawals: (token: string) => fetch(`${API_URL}/admin/withdrawals`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  }),
+  getAuditLogs: (token: string) => fetch(`${API_URL}/admin/audit-logs`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
+};
 
-  instance.interceptors.response.use(
-    (res) => res.data,
-    (err) => {
-      const message = err.response?.data?.message ?? err.message ?? 'Request failed';
-      if (err.response?.status === 401) {
-        Cookies.remove('token');
-        if (typeof window !== 'undefined') window.location.href = '/auth/login';
-      }
-      return Promise.reject(new Error(message));
-    },
-  );
-});
+export default {
+  auth: authApi,
+  user: userApi,
+  admin: adminApi
+};
